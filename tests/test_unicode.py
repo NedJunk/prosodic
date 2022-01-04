@@ -1,9 +1,9 @@
-#encoding=utf-8
+# encoding=utf-8
 
 import prosodic as p
-p.config['print_to_screen']=True
+p.config['print_to_screen'] = True
 
-input_text=u"""Let me not to the marriage of true minds
+input_text = u"""Let me not to the marriage of true minds
 Admit impediments. Love is not love
 Which alters when it alteration finds,
 Or bends with the remover to remove.

@@ -1,17 +1,18 @@
 from . import prosodic as p
 #t = p.Text('have you reckoned a thousand acres much?')
-t=p.Text('corpora/corppoetry_fi/fi.koskenniemi.txt')
+t = p.Text('corpora/corppoetry_fi/fi.koskenniemi.txt')
 t.more()
 print()
 
 print(">> printing all heavy syllables...")
-print(t.feature('+prom.weight',True))
+print(t.feature('+prom.weight', True))
+
 
 def is_ntV(word):
-	phonemes = word.phonemes()
-	if phonemes[-3:-1] != [p.Phoneme("n"), p.Phoneme("t")]:
-		return False
-	return phonemes[-1].feature("syll")
+    phonemes = word.phonemes()
+    if phonemes[-3:-1] != [p.Phoneme("n"), p.Phoneme("t")]:
+        return False
+    return phonemes[-1].feature("syll")
 
 
 print()

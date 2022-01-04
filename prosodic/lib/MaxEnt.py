@@ -13,14 +13,16 @@ import numpy as np
 # possible interpretations. Then, it
 # uses a Maximum Entropy optimization
 # algorithm to determine the best weighting
-# for each contstraint so as to maximize the
+# for each constraint so as to maximize the
 # probability of the hand-selected parse(s)
 # while minimizing the probability of the
 # non-selected parses.
 
-# Based on algorith and mathematics as
+# Based on algorithm and mathematics as
 # described here: http://homepages.inf.ed.ac.uk/sgwater/papers/OTvar03.pdf
 # and loosely informed by MEGrammarTool from Bruce Hayes
+
+
 class DataPoint:
     def __init__(self, line, scansion, scansion_str, frequency):
         self.line = line
@@ -28,6 +30,7 @@ class DataPoint:
         self.scansion_str = scansion_str
         self.frequency = frequency
         self.violations = None
+
 
 class DataAggregator:
 
@@ -47,7 +50,6 @@ class DataAggregator:
         full_parses = self.__get__parses__(data)
 
         return full_parses
-
 
     def __extract_provided_data__(self, data_path, delimeter):
         data = {}
@@ -121,7 +123,8 @@ class DataAggregator:
 
                 constraint_viol_count = []
                 for constraint in self.constraints:
-                    constraint_viol_count.append(constraint_violations[constraint] / constraint.weight)
+                    constraint_viol_count.append(
+                        constraint_violations[constraint] / constraint.weight)
 
                 frequency = 0.0
                 for datum in data[line]:
@@ -129,14 +132,12 @@ class DataAggregator:
                         frequency = datum.frequency
                         matched = True
 
-                data_point = DataPoint(line, meter_str, scansion_str, frequency)
+                data_point = DataPoint(
+                    line, meter_str, scansion_str, frequency)
                 data_point.violations = constraint_viol_count
                 parse_list.append(data_point)
 
-
-
             full_parses[line] = parse_list
-
 
         return full_parses
 
@@ -179,6 +180,7 @@ class DataAggregator:
 
         return inputs_to_data, inputs_to_outputs, feature_count
 
+
 class MaxEntAnalyzer:
 
     def __init__(self, data_aggregator):
@@ -188,7 +190,8 @@ class MaxEntAnalyzer:
         muVec = []
         sigmaVec = []
         for constraint in self.constraints:
-            muVec.append(constraint.mu if constraint.mu == 0 else -constraint.mu)
+            muVec.append(constraint.mu if constraint.mu ==
+                         0 else -constraint.mu)
             sigmaVec.append(constraint.sigma)
 
         self.mu = np.array(muVec)
@@ -198,7 +201,7 @@ class MaxEntAnalyzer:
         # initializes to all zeros..., maybe could randomize?
         self.weights = np.zeros([self.feature_count])
 
-    def train(self, step = 0.01, epochs = 1000000, tolerance=1e-4, only_positive_weights = True):
+    def train(self, step=0.01, epochs=1000000, tolerance=1e-4, only_positive_weights=True):
         self.step = step
         self.tolerance = tolerance
         self.iterations = epochs
@@ -217,7 +220,6 @@ class MaxEntAnalyzer:
                     if self.weights[i] > 0:
                         self.weights[i] = 0
 
-
     def report(self):
         # First, print out weights
 
@@ -234,7 +236,8 @@ class MaxEntAnalyzer:
         print("Step Size: {}".format(self.step))
         print("Number of Epochs: {}".format(self.iterations))
         print("Early Stop Tolerance: {}".format(self.tolerance))
-        print("Negative Weights Allowed: {}".format(self.negative_weights_allowed))
+        print("Negative Weights Allowed: {}".format(
+            self.negative_weights_allowed))
 
         print("")
         print("")
@@ -244,7 +247,8 @@ class MaxEntAnalyzer:
         for i in range(len(self.constraints)):
             weight = self.weights[i]
             print_weight = 0 if weight == 0 else -weight
-            print("Constraint {}: {}".format(self.constraints[i], print_weight))
+            print("Constraint {}: {}".format(
+                self.constraints[i], print_weight))
 
         print("")
         print("")
@@ -284,7 +288,8 @@ class MaxEntAnalyzer:
         save_string += "Step Size\t{}\n".format(self.step)
         save_string += "Epochs\t{}\n".format(self.iterations)
         save_string += "Early Stop Tolerance\t{}\n".format(self.tolerance)
-        save_string += "Negative Weights Allowed\t{}\n".format(self.negative_weights_allowed)
+        save_string += "Negative Weights Allowed\t{}\n".format(
+            self.negative_weights_allowed)
 
         save_string += "\n\n"
 
@@ -341,7 +346,7 @@ class MaxEntAnalyzer:
 
         denominator = np.sum(exp_scores)
         unsummed_numerator = outs * exp_scores[:, None]
-        numerator = np.sum(unsummed_numerator, axis = 0)
+        numerator = np.sum(unsummed_numerator, axis=0)
 
         return numerator / denominator
 

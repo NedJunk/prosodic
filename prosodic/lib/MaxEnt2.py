@@ -13,14 +13,16 @@ import numpy as np
 # possible interpretations. Then, it
 # uses a Maximum Entropy optimization
 # algorithm to determine the best weighting
-# for each contstraint so as to maximize the
+# for each constraint so as to maximize the
 # probability of the hand-selected parse(s)
 # while minimizing the probability of the
 # non-selected parses.
 
-# Based on algorith and mathematics as
+# Based on algorithm and mathematics as
 # described here: http://homepages.inf.ed.ac.uk/sgwater/papers/OTvar03.pdf
 # and loosely informed by MEGrammarTool from Bruce Hayes
+
+
 class DataPoint:
     def __init__(self, line, scansion, scansion_str, frequency):
         self.line = line
@@ -28,6 +30,7 @@ class DataPoint:
         self.scansion_str = scansion_str
         self.frequency = frequency
         self.violations = None
+
 
 class DataAggregator:
 
@@ -43,23 +46,23 @@ class DataAggregator:
         self.lines = []
         self.data = self.__build_data_set__(data_path, delimeter)
 
-
     def __build_data_set__(self, data_path, delimeter):
-        if type(data_path) in {str,str}:
+        if type(data_path) in {str, str}:
             data = self.__extract_provided_data__(data_path, delimeter)
-        else: # The data is in the format: [(line [str], [scansion], [frequency]), (line [str], [scansion], [frequency]), ...]
+        # The data is in the format: [(line [str], [scansion], [frequency]), (line [str], [scansion], [frequency]), ...]
+        else:
             data = self.__attach_provided_data__(data_path)
         full_parses = self.__get__parses__(data)
 
         return full_parses
 
-    def __attach_provided_data__(self,data_tuples):
+    def __attach_provided_data__(self, data_tuples):
         data = {}
-        for line,scansion,frequency in data_tuples:
+        for line, scansion, frequency in data_tuples:
             datum = DataPoint(line, scansion, None, frequency)
             if line not in data:
-                data[line]=[]
-                self.lines+=[line]
+                data[line] = []
+                self.lines += [line]
             data[line].append(datum)
         return data
 
@@ -102,7 +105,7 @@ class DataAggregator:
 
                 if text not in data:
                     data[text] = []
-                    self.lines+=[text]
+                    self.lines += [text]
 
                 datum = DataPoint(text, scansion, None, frequency)
                 data[text].append(datum)
@@ -115,7 +118,7 @@ class DataAggregator:
             text = Text(line, lang=self.lang, meter=self.meter.id)
             text.parse()
 
-            #print(line)
+            # print(line)
 
             parses = text.allParses(include_bounded=False)[0]
             parse_list = []
@@ -132,12 +135,14 @@ class DataAggregator:
                 if self.constraints is None:
                     self.constraints = []
                     for constraint in constraint_violations:
-                        if constraint.name in {'skip_initial_foot'}: continue
+                        if constraint.name in {'skip_initial_foot'}:
+                            continue
                         self.constraints.append(constraint)
 
                 constraint_viol_count = []
                 for constraint in self.constraints:
-                    constraint_viol_count.append(constraint_violations[constraint] / constraint.weight)
+                    constraint_viol_count.append(
+                        constraint_violations[constraint] / constraint.weight)
 
                 frequency = 0.0
                 for datum in data[line]:
@@ -145,14 +150,12 @@ class DataAggregator:
                         frequency = datum.frequency
                         matched = True
 
-                data_point = DataPoint(line, meter_str, scansion_str, frequency)
+                data_point = DataPoint(
+                    line, meter_str, scansion_str, frequency)
                 data_point.violations = constraint_viol_count
                 parse_list.append(data_point)
 
-
-
             full_parses[line] = parse_list
-
 
         return full_parses
 
@@ -161,10 +164,10 @@ class DataAggregator:
         inputs_to_outputs = {}
         feature_count = None
 
-        #for line in self.data:
+        # for line in self.data:
         for line in self.lines:
             if not line in self.data:
-                print('!?',line,'not in DataAggregator.data ?')
+                print('!?', line, 'not in DataAggregator.data ?')
                 continue
 
             if line not in inputs_to_outputs:
@@ -184,7 +187,7 @@ class DataAggregator:
             violations, frequencies = inputs_to_data[key]
 
             violation_matrix = np.array(violations)
-            #print "Frequencies:", frequencies
+            # print "Frequencies:", frequencies
             frequency_vector = np.array(frequencies)
 
             # Normalize frequencies:
@@ -200,6 +203,7 @@ class DataAggregator:
 
         return inputs_to_data, inputs_to_outputs, feature_count
 
+
 class MaxEntAnalyzer:
 
     def __init__(self, data_aggregator):
@@ -210,7 +214,8 @@ class MaxEntAnalyzer:
         muVec = []
         sigmaVec = []
         for constraint in self.constraints:
-            muVec.append(constraint.mu if constraint.mu == 0 else -constraint.mu)
+            muVec.append(constraint.mu if constraint.mu ==
+                         0 else -constraint.mu)
             sigmaVec.append(constraint.sigma)
 
         self.mu = np.array(muVec)
@@ -220,7 +225,7 @@ class MaxEntAnalyzer:
         # initializes to all zeros..., maybe could randomize?
         self.weights = np.zeros([self.feature_count])
 
-    def train(self, step = 0.1, epochs = 10000, tolerance=1e-6, only_positive_weights = True):
+    def train(self, step=0.1, epochs=10000, tolerance=1e-6, only_positive_weights=True):
         self.step = step
         self.tolerance = tolerance
         self.iterations = epochs
@@ -239,7 +244,6 @@ class MaxEntAnalyzer:
                     if self.weights[i] > 0:
                         self.weights[i] = 0
 
-
     def report(self):
         # First, print out weights
 
@@ -256,7 +260,8 @@ class MaxEntAnalyzer:
         print("Step Size: {}".format(self.step))
         print("Number of Epochs: {}".format(self.iterations))
         print("Early Stop Tolerance: {}".format(self.tolerance))
-        print("Negative Weights Allowed: {}".format(self.negative_weights_allowed))
+        print("Negative Weights Allowed: {}".format(
+            self.negative_weights_allowed))
 
         print("")
         print("")
@@ -266,7 +271,8 @@ class MaxEntAnalyzer:
         for i in range(len(self.constraints)):
             weight = self.weights[i]
             print_weight = 0 if weight == 0 else -weight
-            print("Constraint {}: {}".format(self.constraints[i], print_weight))
+            print("Constraint {}: {}".format(
+                self.constraints[i], print_weight))
 
         print("")
         print("")
@@ -306,7 +312,8 @@ class MaxEntAnalyzer:
         save_string += "Step Size\t{}\n".format(self.step)
         save_string += "Epochs\t{}\n".format(self.iterations)
         save_string += "Early Stop Tolerance\t{}\n".format(self.tolerance)
-        save_string += "Negative Weights Allowed\t{}\n".format(self.negative_weights_allowed)
+        save_string += "Negative Weights Allowed\t{}\n".format(
+            self.negative_weights_allowed)
 
         save_string += "\n\n"
 
@@ -363,7 +370,7 @@ class MaxEntAnalyzer:
 
         denominator = np.sum(exp_scores)
         unsummed_numerator = outs * exp_scores[:, None]
-        numerator = np.sum(unsummed_numerator, axis = 0)
+        numerator = np.sum(unsummed_numerator, axis=0)
 
         return numerator / denominator
 

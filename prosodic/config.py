@@ -1,4 +1,4 @@
-#encoding=utf-8
+# encoding=utf-8
 ############################################
 # [config.py]
 # CONFIGURATION SETTINGS FOR PROSODIC
@@ -48,14 +48,14 @@ meter = 'meter_ryan'
 # when typing text directly or loading text.
 #
 # All text is English:
-lang='en'
+lang = 'en'
 #
 # All text is Finnish:
-#lang='fi'
+# lang='fi'
 #
 # Detect language from first two characters of filename:
 # e.g. "en.[filename].txt" is English, "fi.[filename].txt" is Finnish
-#lang='**'
+# lang='**'
 ############################################
 
 
@@ -93,15 +93,15 @@ parse_using_metrical_tree = 0
 # OPTIONS ABOUT PRINTING TO SCREEN
 #
 # Print loaded words, parses, etc. to screen:
-#print_to_screen=True
+# print_to_screen=True
 #
 # Do not print loaded words, parses, etc. to screen:
 # Although hiden, you may still save any output to disk
 # using the /save command.
-print_to_screen=True
+print_to_screen = True
 #
 # The default length for the line used by printing
-linelen=60
+linelen = 60
 ############################################
 
 
@@ -116,13 +116,13 @@ linelen=60
 # [PROSODIC can parse lines of up to approximately 20 syllables
 # before the number of possibilities become too large,
 # slowing the algorithm down to a halt.]
-line_maxsylls=60
+line_maxsylls = 60
 #
 # The minimum size of the line to parse:
 # [useful if lines are determined by punctuation,
 # because sometimes they can be very very short
 # and so pointless for metrical parsing.]
-#line_minsylls=9
+# line_minsylls=9
 #
 # Alternatively, after how many seconds should Prosodic give up
 # when trying to parse a (long or ambiguous) line?
@@ -139,16 +139,16 @@ parse_maxsec = 30
 #
 # Linebreaks occur only at actual linebreaks in the
 # processed text file (good for metrical poetry):
-linebreak='line'
+linebreak = 'line'
 #
 # Linebreaks occur only upon encountering any of these
 # punctuation marks (good for prose):
-#linebreak=',;:.?!()[]{}<>'
+# linebreak=',;:.?!()[]{}<>'
 #
 # Linebreaks occur both at linebreaks in the text,
 # *and* at any of these punctuation marks (good for
 # prose and free-verse poetry):
-#linebreak='line,;:.?!()[]{}<>'
+# linebreak='line,;:.?!()[]{}<>'
 #
 #
 ######
@@ -157,10 +157,10 @@ linebreak='line'
 # Headedness [optional]
 # If there are multiple parses tied for the lowest score,
 # break the tie by preferring lines that begin with this pattern:
-line_headedness='ws'
-#line_headedness='sw'
-#line_headedness='wws'
-#line_headedness='ssw'
+line_headedness = 'ws'
+# line_headedness='sw'
+# line_headedness='wws'
+# line_headedness='ssw'
 ############################################
 
 
@@ -175,10 +175,10 @@ line_headedness='ws'
 # to split it into a list of words.
 #
 # Words are tokenized against [^] white-spaces [\s+] and hyphens [-]
-#tokenizer='[^\s+-]+'
+# tokenizer='[^\s+-]+'
 #
 # Words are tokenized against [^] white-spaces [\s+]
-tokenizer='[^\s+]+'
+tokenizer = '[^\s+]+'
 #
 ######
 # [Resolving stress ambiguity]
@@ -192,8 +192,8 @@ tokenizer='[^\s+]+'
 # Allow the metrical parser to parse all stress profiles for all
 # words in the line, thus choosing the stress profile for each
 # word that best fit the metrical parse:
-resolve_optionality=1
-#resolve_optionality=0
+resolve_optionality = 1
+# resolve_optionality=0
 #
 #
 ######
@@ -206,8 +206,8 @@ resolve_optionality=1
 # --> SCAT|tring|UN|be|HOLD|en
 #
 # Add pronunciations for words that could have elided syllables:
-add_elided_pronunciations=1
-#add_elided_pronunciations=0
+add_elided_pronunciations = 1
+# add_elided_pronunciations=0
 #
 #
 ######
@@ -220,13 +220,14 @@ add_elided_pronunciations=1
 #  - orth (the orthography itself [good for Finnish])
 #
 # The default phonetic output for all languages:
-output='ipa'
+output = 'ipa'
 #
 # The phonetic output for English:
-output_en='ipa'
+output_en = 'ipa'
 #
 # The phonetic output for Finnish:
-output_fi='orth'		# since finnish pronunciation is essentially identical to its orthography
+# since finnish pronunciation is essentially identical to its orthography
+output_fi = 'orth'
 ############################################
 
 

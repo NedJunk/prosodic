@@ -7,7 +7,7 @@
 name = "Shakespeare's Meter [Kiparsky and Hanson] [strength.w=>-p on minimal feet]"
 #
 # [Do not remove or uncomment the following line]
-Cs={}
+Cs = {}
 ############################################
 
 ############################################
@@ -17,25 +17,25 @@ Cs={}
 # call these "formally independent of phonological structure." By contrast,
 # "realization parameters"--e.g., the size of a metrical position, which positions
 # are regulated, and other constraints--"determine the way the structure is
-# linguistically manifested, and are dependent on the prosodic givens of languge."
+# linguistically manifested, and are dependent on the prosodic givens of language."
 #
 #
 ####
 # [Number of feet in a line]
 #
-#Cs['number_feet!=2'] = 1       # require dimeter
-#Cs['number_feet!=3'] = 1       # require trimeter
-#Cs['number_feet!=4'] = 1       # require tetrameter
-#Cs['number_feet!=5'] = 1        # require pentameter
-#Cs['number_feet!=6'] = 1       # require hexameter
-#Cs['number_feet!=7'] = 1       # require heptameter
+# Cs['number_feet!=2'] = 1       # require dimeter
+# Cs['number_feet!=3'] = 1       # require trimeter
+# Cs['number_feet!=4'] = 1       # require tetrameter
+# Cs['number_feet!=5'] = 1        # require pentameter
+# Cs['number_feet!=6'] = 1       # require hexameter
+# Cs['number_feet!=7'] = 1       # require heptameter
 #
 #
 ####
 # [Headedness of the line]
 #
-#Cs['headedness!=falling'] = 1  # require a falling rhythm (e.g. trochaic, dactylic)
-#Cs['headedness!=rising'] = 1    # require a rising rhythm (e.g., iambic, anapestic)
+# Cs['headedness!=falling'] = 1  # require a falling rhythm (e.g. trochaic, dactylic)
+# Cs['headedness!=rising'] = 1    # require a rising rhythm (e.g., iambic, anapestic)
 #
 ############################################
 
@@ -57,21 +57,21 @@ Cs={}
 # [Maximum position size]
 #
 # The maximum number of syllables allowed in strong metrical positions (i.e. "s")
-maxS=2
+maxS = 2
 #
 # The maximum number of syllables allowed in weak metrical positions (i.e. "w")
-maxW=2
+maxW = 2
 #
 #
 ######
 # [Minimum position size]
 #
 # (Recommended) Positions are at minimum one syllable in size
-splitheavies=0
+splitheavies = 0
 #
 # (Unrecommended) Allow positions to be as small as a single mora
 # i.e. (a split heavy syllable can straddle two metrical positions)
-#splitheavies=1
+# splitheavies=1
 ############################################
 
 
@@ -99,20 +99,20 @@ splitheavies=0
 # [Stricter versions:]
 #
 # A strong metrical position should not contain any weak syllables ("troughs"):
-#Cs['strength.s=>-u']=3
+# Cs['strength.s=>-u']=3
 #
 # A weak metrical position may not contain any strong syllables ("peaks"):
 # [Kiparsky and Hanson believe this is Shakespeare's meter]
-Cs['strength.w=>-p']=1
+Cs['strength.w=>-p'] = 1
 #
 ###
 # [Laxer versions:]
 #
 # A strong metrical position should contain at least one strong syllable:
-#Cs['strength.s=>p']=3
+# Cs['strength.s=>p']=3
 #
 # A weak metrical position should contain at least one weak syllable:
-#Cs['strength.w=>u']=3
+# Cs['strength.w=>u']=3
 #
 #
 #
@@ -124,19 +124,19 @@ Cs['strength.w=>-p']=1
 #
 # A strong metrical position should not contain any unstressed syllables:
 # [Kiparsky and Hanson believe this is Hopkins' meter]
-#Cs['stress.s=>-u']=2
+# Cs['stress.s=>-u']=2
 #
 # A weak metrical position should not contain any stressed syllables:
-#Cs['stress.w=>-p']=2
+# Cs['stress.w=>-p']=2
 #
 ###
 # [Laxer versions:]
 #
 # A strong metrical position should contain at least one stressed syllable:
-#Cs['stress.s=>p']=2
+# Cs['stress.s=>p']=2
 #
 # A weak metrical position must contain at least one unstressed syllable;
-#Cs['stress.w=>u']=2
+# Cs['stress.w=>u']=2
 #
 #
 #
@@ -152,19 +152,19 @@ Cs['strength.w=>-p']=1
 # [Stricter versions:]
 #
 # A strong metrical position should not contain any feets of phrases (non-heads in branching phrases):
-#Cs['phrasal_head.s=>-u']=10
+# Cs['phrasal_head.s=>-u']=10
 #
 # A strong metrical position should not contain any heads of phrases:
-#Cs['phrasal_head.w=>-p']=1
+# Cs['phrasal_head.w=>-p']=1
 #
 ###
 # [Laxer versions:]
 #
 # A strong metrical position must contain at least one feets of phrases (non-heads in branching phrases):
-#Cs['phrasal_head.s=>p']=2
+# Cs['phrasal_head.s=>p']=2
 #
 # A weak metrical position must contain at least one phrasal head;
-#Cs['phrasal_head.w=>u']=2
+# Cs['phrasal_head.w=>u']=2
 #
 #
 #
@@ -187,19 +187,19 @@ Cs['strength.w=>-p']=1
 # [Stricter versions:]
 #
 # A strong metrical position should not contain any phrasally weak syllables:
-#Cs['phrasal_strength.s=>-u']=10
+# Cs['phrasal_strength.s=>-u']=10
 #
 # A weak metrical position should not contain any phrasally strong syllables:
-#Cs['phrasal_strength.w=>-p']=1
+# Cs['phrasal_strength.w=>-p']=1
 #
 ###
 # [Laxer versions:]
 #
 # A strong metrical position should contain at least one phrasally strong syllable:
-#Cs['phrasal_strength.s=>p']=2
+# Cs['phrasal_strength.s=>p']=2
 #
 # A weak metrical position must contain at least one phrasally weak syllable;
-#Cs['phrasal_strength.w=>u']=2
+# Cs['phrasal_strength.w=>u']=2
 #
 #
 #
@@ -220,15 +220,15 @@ Cs['strength.w=>-p']=1
 # Because most words have *some* phrasal stress, a word is considered phrasally stressed
 # if its numeric value is less than what is defined here; otherwise, it is considered
 # phrasally unstressed. Default = 2, i.e., primary and secondary stresses count.
-Cs['phrasal_stress_threshold']=2
+Cs['phrasal_stress_threshold'] = 2
 #
 #
 # Should the above threshold be computed across the sentence, or the line? If this is 'sentence',
 # then the above number (say, 2) refers to the secondary stresses in the *sentence.* If 'line',
 # then it refers to the secondary stresses in the poetic *line* (i.e., the stress grid is moved up
 # such that the biggest stress in the line becomes 1 (primary), etc.)
-Cs['phrasal_stress_norm_context_is_sentence']=1
-#Cs['phrasal_stress_norm_context_is_line']=1
+Cs['phrasal_stress_norm_context_is_sentence'] = 1
+# Cs['phrasal_stress_norm_context_is_line']=1
 #
 #
 #
@@ -236,19 +236,19 @@ Cs['phrasal_stress_norm_context_is_sentence']=1
 # [Stricter versions:]
 #
 # A strong metrical position should not contain any phrasally unstressed syllables:
-#Cs['phrasal_stress.s=>-u']=10
+# Cs['phrasal_stress.s=>-u']=10
 #
 # A weak metrical position should not contain any phrasally stressed syllables:
-#Cs['phrasal_stress.w=>-p']=1
+# Cs['phrasal_stress.w=>-p']=1
 #
 ###
 # [Laxer versions:]
 #
 # A strong metrical position should contain at least one phrasally stressed syllable:
-#Cs['phrasal_stress.s=>p']=2
+# Cs['phrasal_stress.s=>p']=2
 #
 # A weak metrical position must contain at least phrasally unstressed syllable:
-#Cs['phrasal_stress.w=>u']=2
+# Cs['phrasal_stress.w=>u']=2
 #
 #
 #
@@ -263,19 +263,19 @@ Cs['phrasal_stress_norm_context_is_sentence']=1
 # [Stricter versions:]
 #
 # A strong metrical position should not contain any light syllables:
-#Cs['weight.s=>-u']=2
+# Cs['weight.s=>-u']=2
 #
 # A weak metrical position should not contain any heavy syllables:
-#Cs['weight.w=>-p']=2
+# Cs['weight.w=>-p']=2
 #
 ###
 # [Laxer versions:]
 #
 # A strong metrical position should contain at least one heavy syllable:
-#Cs['weight.s=>p']=2
+# Cs['weight.s=>p']=2
 #
 # A weak metrical position must contain at least one light syllable;
-#Cs['weight.w=>u']=2
+# Cs['weight.w=>u']=2
 #
 #
 #
@@ -288,38 +288,38 @@ Cs['phrasal_stress_norm_context_is_sentence']=1
 #
 # A disyllabic metrical position should not contain more than a minimal foot:
 # (i.e. allowed positions are syllables weighted light-light or light-heavy)
-#Cs['footmin-noHX']=1000
+# Cs['footmin-noHX']=1000
 #
 # A disyllabic STRONG metrical position should not contain more than a minimal foot:
 # (i.e. allowed positions are syllables weighted light-light or light-heavy)
-Cs['footmin-s-noHX']=1
+Cs['footmin-s-noHX'] = 1
 #
 # A disyllabic metrical position should be syllables weighted light-light:
-#Cs['footmin-noLH-noHX']=1
+# Cs['footmin-noLH-noHX']=1
 #
 ###
 # [Categorical:]
 #
 # A metrical position should not contain more than one syllable:
 # [use to discourage disyllabic positions]
-#Cs['footmin-none']=1
+# Cs['footmin-none']=1
 #
 # A strong metrical position should not contain more than one syllable:
-#Cs['footmin-no-s']=1
+# Cs['footmin-no-s']=1
 #
 # A weak metrical position should not contain more than one syllable:
-#Cs['footmin-no-w']=1
+# Cs['footmin-no-w']=1
 #
 # A metrical position should not contain more than one syllable,
 # *unless* that metrical position is the *first* or *second* in the line:
 # [use to discourage disyllabic positions, but not trochaic inversions,
 # or an initial "extrametrical" syllable]
-#Cs['footmin-none-unless-in-first-two-positions']=1
+# Cs['footmin-none-unless-in-first-two-positions']=1
 #
 # A metrical position should not contain more than one syllable,
 # *unless* that metrical position is the *second* in the line:
 # [use to discourage disyllabic positions, but not trochaic inversions]
-#Cs['footmin-none-unless-in-second-position']=1
+# Cs['footmin-none-unless-in-second-position']=1
 #
 # A strong metrical position should not contain more than one syllable,
 # *unless* it is preceded by a disyllabic *weak* metrical position:
@@ -331,9 +331,9 @@ Cs['footmin-s-noHX']=1
 # double-weak beats *preceding* -- due to the way in which the parser
 # throws away bounded parses as it goes, it might not be possible for now
 # to write a constraint referencing future positions]
-#Cs['footmin-no-s-unless-preceded-by-ww']=10
+# Cs['footmin-no-s-unless-preceded-by-ww']=10
 # [The version that does reference future positions; but appears to be unstable]:
-#Cs['attridge-ss-not-by-ww']=10
+# Cs['attridge-ss-not-by-ww']=10
 
 #
 ###
@@ -341,26 +341,26 @@ Cs['footmin-s-noHX']=1
 # (i.e. having two syllables, each from a different word)...
 #
 # ...it should never cross a word boundary to begin with:
-#Cs['footmin-wordbound']=1000
+# Cs['footmin-wordbound']=1000
 #
 # ...both words should be function words:
-#Cs['footmin-wordbound-bothnotfw']=1
+# Cs['footmin-wordbound-bothnotfw']=1
 #
 # ...at least one word should be a function word:
-#Cs['footmin-wordbound-neitherfw']=1
+# Cs['footmin-wordbound-neitherfw']=1
 #
 # ...the left-hand syllable should be a function-word:
-#Cs['footmin-wordbound-leftfw']=1
+# Cs['footmin-wordbound-leftfw']=1
 #
 # ...the right-hand syllable should be a function word:
-#Cs['footmin-wordbound-rightfw']=1
+# Cs['footmin-wordbound-rightfw']=1
 #
 # ...neither word should be a monosyllable:
-#Cs['footmin-wordbound-nomono']=1
+# Cs['footmin-wordbound-nomono']=1
 #
 # ...neither word should be a LEXICAL monosyllable
 # (i.e. function words and polysyllabic words ok)
-Cs['footmin-wordbound-lexmono']=1
+Cs['footmin-wordbound-lexmono'] = 1
 ###
 # [Miscellaneous constraints relating to disyllabic positions]
 #
@@ -369,14 +369,14 @@ Cs['footmin-wordbound-lexmono']=1
 # (ii) followed within the same position by an unstressed
 # syllable normally belonging to the same word.
 # [written by Sam Bowman]
-#Cs['footmin-strongconstraint']=1
+# Cs['footmin-strongconstraint']=1
 #
 # The final metrical position of the line should not be 'ww'
 # [use to encourage "...LI|ber|TY" rather than "...LI|ber.ty"]
-#Cs['posthoc-no-final-ww']=2
+# Cs['posthoc-no-final-ww']=2
 #
 # The final metrical position of the line should not be 'w' or 'ww'
-#Cs['posthoc-no-final-w']=2
+# Cs['posthoc-no-final-w']=2
 #
 # A line should have all 'ww' or all 'w':
 # It works by:
@@ -388,7 +388,7 @@ Cs['footmin-wordbound-lexmono']=1
 # Violation Score = V * [Weight]
 # [use to encourage consistency of meter across line]
 # [feel free to make this a decimal number, like 0.25]
-#Cs['posthoc-standardize-weakpos']=1
+# Cs['posthoc-standardize-weakpos']=1
 #
 #
 #
@@ -396,30 +396,30 @@ Cs['footmin-wordbound-lexmono']=1
 # [MISCELLANEOUS constraints]
 #
 # A function word can fall only in a weak position:
-#Cs['functiontow']=2
+# Cs['functiontow']=2
 #
 # An initial syllable must be in a weak position:
-#Cs['initialstrong']=2
+# Cs['initialstrong']=2
 #
 # The first metrical position will not be evaluated
 # for any of the strength/stress/weight correspondence constraints:
 # [set to 1 to be true]
-#Cs['extrametrical-first-pos']=1
+# Cs['extrametrical-first-pos']=1
 #
 # The first two metrical positions will not be evaluated
 # for any of the strength/stress/weight correspondence constraints:
 # [set to 1 to be true]
-Cs['skip_initial_foot']=1
+Cs['skip_initial_foot'] = 1
 #
 # A word should not be an elision [use to discourage elisions]:
-#Cs['word-elision']=1
+# Cs['word-elision']=1
 
 #
 # A weak metrical position should not contain any syllables
 # that are stressed and heavy: [Meter of Finnish "Kalevala"]
-#Cs['kalevala.w=>-p']=1
+# Cs['kalevala.w=>-p']=1
 #
 # A strong metrical position should not contain any syllables
 # that are stressed and light: [Meter of Finnish "Kalevala"]
-#Cs['kalevala.s=>-u']=1
+# Cs['kalevala.s=>-u']=1
 ############################################

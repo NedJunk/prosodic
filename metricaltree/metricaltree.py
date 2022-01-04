@@ -1,9 +1,9 @@
 #!/usr/bin/env python # -*- coding: utf-8 -*-
-#8/31/15: 1200-1600
-#9/06/15: 1330-1945
-#9/08/15: 1130-1430
-#9/15 3:30-6:30 <- taken care of?
-#11/25 eh, like 30 mins
+# 8/31/15: 1200-1600
+# 9/06/15: 1330-1945
+# 9/08/15: 1130-1430
+# 9/15 3:30-6:30 <- taken care of?
+# 11/25 eh, like 30 mins
 
 import os
 from collections import defaultdict
@@ -17,26 +17,30 @@ from nltk import compat
 from nltk.tree import Tree
 import nltk.data
 from deptree import DependencyTree, DependencyTreeParser
-import re,time
+import re
+import time
 
 DATE = '2015-04-20'
 MODELS_VERSION = '3.5.2'
 EJML_VERSION = '0.23'
 
 
-
 DIR_ROOT = '.'
 sylcmu = None
 
-INFO_DO_NOT_STORE = ['contour','sent','nsyll','nseg','seg','nstress','word']
+INFO_DO_NOT_STORE = ['contour', 'sent',
+                     'nsyll', 'nseg', 'seg', 'nstress', 'word']
 
 
 def set_paths(dir_root='.'):
-    global DIR_ROOT,sylcmu
+    global DIR_ROOT, sylcmu
     DIR_ROOT = dir_root
-    os.environ['STANFORD_PARSER'] = os.path.join(dir_root,'Stanford Library/stanford-parser-full-%s/stanford-parser.jar' % DATE)
-    os.environ['STANFORD_MODELS'] = os.path.join(dir_root,'Stanford Library/stanford-parser-full-%s/stanford-parser-%s-models.jar' % (DATE, MODELS_VERSION))
-    os.environ['STANFORD_EJML']   = os.path.join(dir_root,'Stanford Library/stanford-parser-full-%s/ejml-%s.jar' % (DATE, EJML_VERSION))
+    os.environ['STANFORD_PARSER'] = os.path.join(
+        dir_root, 'Stanford Library/stanford-parser-full-%s/stanford-parser.jar' % DATE)
+    os.environ['STANFORD_MODELS'] = os.path.join(
+        dir_root, 'Stanford Library/stanford-parser-full-%s/stanford-parser-%s-models.jar' % (DATE, MODELS_VERSION))
+    os.environ['STANFORD_EJML'] = os.path.join(
+        dir_root, 'Stanford Library/stanford-parser-full-%s/ejml-%s.jar' % (DATE, EJML_VERSION))
 
     """
     then=time.time()
@@ -50,12 +54,15 @@ def set_paths(dir_root='.'):
 
 sent_splitter = nltk.data.load('tokenizers/punkt/english.pickle')
 
-#***********************************************************************
+# ***********************************************************************
 # Multiprocessing worker
+
+
 def parse_worker(q):
     """"""
 
-    parser = DependencyTreeParser(model_path='Stanford Library/stanford-parser-full-%s/edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz' % DATE)
+    parser = DependencyTreeParser(
+        model_path='Stanford Library/stanford-parser-full-%s/edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz' % DATE)
     parser = MetricalTreeParser(parser)
     for filename in iter(q.get, 'STOP'):
         print('Working on %s...' % filename)
@@ -64,20 +71,25 @@ def parse_worker(q):
             for line in f:
                 sents.extend(pause_splitter(line))
         df = parser.stats_raw_parse_sents(sents, arto=True)
-        df.to_csv(codecs.open('%s.csv' % filename, 'w', encoding='utf-8'), index=False)
+        df.to_csv(codecs.open('%s.csv' %
+                  filename, 'w', encoding='utf-8'), index=False)
         print('Finished with %s.' % filename)
     return True
 
 # Return parser
+
+
 def return_parser(dir_root):
-    model_path='Stanford Library/stanford-parser-full-%s/edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz' % DATE
-    fnfn=os.path.join(dir_root,model_path)
+    model_path = 'Stanford Library/stanford-parser-full-%s/edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz' % DATE
+    fnfn = os.path.join(dir_root, model_path)
     parser = DependencyTreeParser(model_path=fnfn)
     parser = MetricalTreeParser(parser)
     return parser
 
-#***********************************************************************
+# ***********************************************************************
 # Split a text on certain punctuation
+
+
 def pause_splitter(s):
     """"""
 
@@ -87,35 +99,41 @@ def pause_splitter(s):
     s = [sent for sents in s for sent in sent_splitter.tokenize(sents)]
     return s
 
-def pause_splitter_tokens(tokens,split_by={':',';','--','—','–'}):
+
+def pause_splitter_tokens(tokens, split_by={':', ';', '--', '—', '–'}):
     """"""
-    sents=[]
-    sent=[]
+    sents = []
+    sent = []
     for tok in tokens:
-        sent+=[tok]
+        sent += [tok]
         if tok in split_by:
-            if sent: sents+=[sent]
-            sent=[]
-    if sent: sents+=[sent]
+            if sent:
+                sents += [sent]
+            sent = []
+    if sent:
+        sents += [sent]
     return sents
+
 
 def split_sentences_from_tokens(l):
     return sent_splitter.sentences_from_tokens(l)
 
-#***********************************************************************
+# ***********************************************************************
 # Metrical Tree class
+
+
 class MetricalTree(DependencyTree):
     """"""
 
     _unstressedWords = ('it',)
-    _unstressedTags  = ('CC', 'PRP$', 'TO', 'UH', 'DT')
-    _unstressedDeps  = ('det', 'expl', 'cc', 'mark')
+    _unstressedTags = ('CC', 'PRP$', 'TO', 'UH', 'DT')
+    _unstressedDeps = ('det', 'expl', 'cc', 'mark')
     _ambiguousWords = ('this', 'that', 'these', 'those')
-    _ambiguousTags  = ('MD', 'IN', 'PRP', 'WP$', 'PDT', 'WDT', 'WP', 'WRB')
-    _ambiguousDeps  = ('cop', 'neg', 'aux', 'auxpass')
+    _ambiguousTags = ('MD', 'IN', 'PRP', 'WP$', 'PDT', 'WDT', 'WP', 'WRB')
+    _ambiguousDeps = ('cop', 'neg', 'aux', 'auxpass')
     _stressedWords = tuple()
 
-    #=====================================================================
+    # =====================================================================
     # Initialize
     def __init__(self, node, children, dep=None, lstress=0, pstress=np.nan, stress=np.nan):
         """"""
@@ -130,62 +148,63 @@ class MetricalTree(DependencyTree):
                 syll_info = sylcmu[self[0].lower()]
                 self._seg = syll_info[0]
                 self._nsyll = len(syll_info[1])
-                self._nstress = len([x for x in syll_info[1] if x[1] in ('P', 'S')])
+                self._nstress = len(
+                    [x for x in syll_info[1] if x[1] in ('P', 'S')])
             else:
                 self._seg = None
                 self._nsyll = np.nan
                 self._nstress = np.nan
 
-    #=====================================================================
+    # =====================================================================
     # Get the lexical stress of the node
     def lstress(self):
         """"""
 
         return self._lstress
 
-    #=====================================================================
+    # =====================================================================
     # Get the phrasal stress of the node
     def pstress(self):
         """"""
 
         return self._pstress
 
-    #=====================================================================
+    # =====================================================================
     # Get the stress of the node
     def stress(self):
         """"""
 
         return self._stress
 
-    #=====================================================================
+    # =====================================================================
     # Get the segments
     def seg(self):
         """"""
 
         return self._seg if self._seg is not None else []
 
-    #=====================================================================
+    # =====================================================================
     # Get the number of segments
     def nseg(self):
         """"""
 
         return len(self._seg) if self._seg is not None else np.nan
 
-    #=====================================================================
+    # =====================================================================
     # Get the number of syllables
     def nsyll(self):
         """"""
 
         return self._nsyll
 
-    #=====================================================================
+    # =====================================================================
     # Get the number of stresses
     def nstress(self):
         """"""
 
         return self._nstress
 
-    #=====================================================================
+    # =====================================================================
     # Get the lexical stress of the leaf nodes
     def lstresses(self, leaves=True):
         """"""
@@ -196,7 +215,7 @@ class MetricalTree(DependencyTree):
             else:
                 yield preterminal._lstress
 
-    #=====================================================================
+    # =====================================================================
     # Get the phrasal stress of the leaf nodes
     def pstresses(self, leaves=True):
         """"""
@@ -207,7 +226,7 @@ class MetricalTree(DependencyTree):
             else:
                 yield preterminal._pstress
 
-    #=====================================================================
+    # =====================================================================
     # Get the lexical stress of the leaf nodes
     def stresses(self, leaves=True, arto=False):
         """"""
@@ -234,7 +253,7 @@ class MetricalTree(DependencyTree):
                 else:
                     yield preterminal._stress
 
-    #=====================================================================
+    # =====================================================================
     # Get the number of syllables of the leaf nodes
     def nsylls(self, leaves=True):
         """"""
@@ -245,7 +264,7 @@ class MetricalTree(DependencyTree):
             else:
                 yield preterminal._nsyll
 
-    #=====================================================================
+    # =====================================================================
     # Set the lexical stress of the node
     def set_lstress(self):
         """"""
@@ -283,15 +302,18 @@ class MetricalTree(DependencyTree):
                 child.set_lstress()
         self.set_label()
 
-    #=====================================================================
+    # =====================================================================
     # Set the phrasal stress of the tree
     def set_pstress(self):
         """"""
 
         # Basis
         if self._preterm:
-            try: assert self._lstress != -.5
-            except: raise ValueError('The tree must be disambiguated before assigning phrasal stress')
+            try:
+                assert self._lstress != -.5
+            except:
+                raise ValueError(
+                    'The tree must be disambiguated before assigning phrasal stress')
             self._pstress = self._lstress
         else:
             # Recurse
@@ -346,7 +368,7 @@ class MetricalTree(DependencyTree):
                 self._pstress = 0
         self.set_label()
 
-    #=====================================================================
+    # =====================================================================
     # Set the total of the tree
     def set_stress(self, stress=0):
         """"""
@@ -357,7 +379,7 @@ class MetricalTree(DependencyTree):
                 child.set_stress(self._stress)
         self.set_label()
 
-    #=====================================================================
+    # =====================================================================
     # Reset the label of the node (cat < dep < lstress < pstress < stress
     def set_label(self):
         """"""
@@ -373,7 +395,7 @@ class MetricalTree(DependencyTree):
         else:
             self._label = '%s' % self._cat
 
-    #=====================================================================
+    # =====================================================================
     # Convert between different subtypes of Metrical Trees
     @classmethod
     def convert(cls, tree):
@@ -397,7 +419,7 @@ class MetricalTree(DependencyTree):
         else:
             return tree
 
-    #=====================================================================
+    # =====================================================================
     # Approximate the number of ambiguous parses
     def ambiguity(self, stress_polysyll=False):
         """"""
@@ -409,7 +431,7 @@ class MetricalTree(DependencyTree):
                     nambig += 1
         return nambig
 
-    #=====================================================================
+    # =====================================================================
     # Generate all possible trees
     # Syll=True sets all polysyllabic words to stressed
     def ambiguate(self, stress_polysyll=False):
@@ -437,7 +459,7 @@ class MetricalTree(DependencyTree):
                         alts.append(alt + [child_alt])
             return [MetricalTree(self._cat, alt, self._dep) for alt in alts]
 
-    #=====================================================================
+    # =====================================================================
     # Disambiguate a tree with the maximal stressed pattern
     def max_stress_disambiguate(self):
         """"""
@@ -461,7 +483,7 @@ class MetricalTree(DependencyTree):
                         alts.append(alt + [child_alt])
             return [MetricalTree(self._cat, alt, self._dep) for alt in alts]
 
-    #=====================================================================
+    # =====================================================================
     # Disambiguate a tree with the minimal stressed pattern
     def min_stress_disambiguate(self, stress_polysyll=False):
         """"""
@@ -489,7 +511,7 @@ class MetricalTree(DependencyTree):
                         alts.append(alt + [child_alt])
             return [MetricalTree(self._cat, alt, self._dep) for alt in alts]
 
-    #=====================================================================
+    # =====================================================================
     # Copy the tree
     def copy(self, deep=False):
         """"""
@@ -499,12 +521,14 @@ class MetricalTree(DependencyTree):
         else:
             return type(self).convert(self)
 
-#***********************************************************************
+# ***********************************************************************
 # Parser for Metrical Trees
+
+
 class MetricalTreeParser:
     """"""
 
-    #=====================================================================
+    # =====================================================================
     # Initialize
     def __init__(self, deptreeParser=None):
         """"""
@@ -513,47 +537,48 @@ class MetricalTreeParser:
             sys.stderr.write('No deptreeParser provided, defaulting to PCFG\n')
             deptreeParser = 'PCFG'
         if isinstance(deptreeParser, compat.string_types):
-            deptreeParser = DependencyTreeParser(model_path='stanford-parser-full-%s/edu/stanford/nlp/models/lexparser/english%s.ser.gz' % (DATE, deptreeParser))
+            deptreeParser = DependencyTreeParser(
+                model_path='stanford-parser-full-%s/edu/stanford/nlp/models/lexparser/english%s.ser.gz' % (DATE, deptreeParser))
         elif not isinstance(deptreeParser, DependencyTreeParser):
             raise ValueError('Provided an invalid dependency tree parser')
         self.deptreeParser = deptreeParser
 
-    #=====================================================================
+    # =====================================================================
     # Use StanfordParser to parse a list of tokens
     def dep_parse_sents(self, sentences, verbose=False):
         """"""
 
         return self.deptreeParser.parse_sents(sentences, verbose)
 
-    #=====================================================================
+    # =====================================================================
     # Use StanfordParser to parse a raw sentence
     def dep_raw_parse(self, sentence, verbose=False):
         """"""
 
         return self.deptreeParser.raw_parse(sentence, verbose)
 
-    #=====================================================================
+    # =====================================================================
     # Use StanfordParser to parse multiple raw sentences
     def dep_raw_parse_sents(self, sentences, verbose=False):
         """"""
 
         return self.deptreeParser.raw_parse_sents(sentences, verbose)
 
-    #=====================================================================
+    # =====================================================================
     # Use StanfordParser to parse multiple preprocessed sentences
     def dep_tagged_parse_sent(self, sentence, verbose=False):
         """"""
 
         return self.deptreeParser.tagged_parse_sent(sentence, verbose)
 
-    #=====================================================================
+    # =====================================================================
     # Use StanfordParser to parse multiple preprocessed sentences
     def dep_tagged_parse_sents(self, sentences, verbose=False):
         """"""
 
         return self.deptreeParser.tagged_parse_sents(sentences, verbose)
 
-    #=====================================================================
+    # =====================================================================
     # Parse a list of tokens into lexical Metrical Trees
     def lex_parse_sents(self, sentences, verbose=False):
         """"""
@@ -565,7 +590,7 @@ class MetricalTreeParser:
                 t.set_lstress()
                 yield t
 
-    #=====================================================================
+    # =====================================================================
     # Parse a raw sentence into lexical Metrical Trees
     def lex_raw_parse(self, sentence, verbose=False):
         """"""
@@ -576,7 +601,7 @@ class MetricalTreeParser:
             t.set_lstress()
             yield t
 
-    #=====================================================================
+    # =====================================================================
     # Parse a string into lexical Metrical Trees
     def lex_raw_parse_sents(self, sentences, verbose=False):
         """"""
@@ -588,7 +613,7 @@ class MetricalTreeParser:
                 t.set_lstress()
                 yield t
 
-    #=====================================================================
+    # =====================================================================
     # Parse a tagged sentence into lexical Metrical Trees
     def lex_tagged_parse(self, sentence, verbose=False):
         """"""
@@ -599,7 +624,7 @@ class MetricalTreeParser:
             t.set_lstress()
             yield t
 
-    #=====================================================================
+    # =====================================================================
     # Parse a raw sentence into lexical Metrical Trees
     def lex_tagged_parse_sents(self, sentences, verbose=False):
         """"""
@@ -611,7 +636,7 @@ class MetricalTreeParser:
                 t.set_lstress()
                 yield t
 
-    #=====================================================================
+    # =====================================================================
     # Parse a list of tokens into phrasal Metrical Trees
     def phr_parse_sents(self, sentences, stress_polysyll=False, verbose=True):
         """"""
@@ -623,7 +648,7 @@ class MetricalTreeParser:
                 tree.set_stress()
             yield trees
 
-    #=====================================================================
+    # =====================================================================
     # Parse a string into phrasal Metrical Trees
     def phr_raw_parse(self, sentences, stress_polysyll=False, verbose=True):
         """"""
@@ -635,7 +660,7 @@ class MetricalTreeParser:
                 tree.set_stress()
             yield trees
 
-    #=====================================================================
+    # =====================================================================
     # Parse a list of strings into phrasal Metrical Trees
     def phr_raw_parse_sents(self, sentences, stress_polysyll=False, verbose=True):
         """"""
@@ -647,7 +672,7 @@ class MetricalTreeParser:
                 tree.set_stress()
             yield trees
 
-    #=====================================================================
+    # =====================================================================
     # Parse a list of tagged strings into phrasal Metrical Trees
     def phr_tagged_parse(self, sentences, stress_polysyll=False, verbose=True):
         """"""
@@ -659,7 +684,7 @@ class MetricalTreeParser:
                 tree.set_stress()
             yield trees
 
-    #=====================================================================
+    # =====================================================================
     # Parse a list of strings into phrasal Metrical Trees
     def phr_tagged_parse_sents(self, sentences, stress_polysyll=False, verbose=True):
         """"""
@@ -671,8 +696,8 @@ class MetricalTreeParser:
                 tree.set_stress()
             yield trees
 
-    #=============================================================
-    def get_stats(self, generator, arto=False,format_pandas=False):
+    # =============================================================
+    def get_stats(self, generator, arto=False, format_pandas=False):
         """"""
 
         data = defaultdict(list)
@@ -693,23 +718,32 @@ class MetricalTreeParser:
 
             j = 0
             preterms1 = list(tree1.preterminals())
-            min1 = float(min([preterm.stress() for preterm in preterms1 if not np.isnan(preterm.stress())]))
-            max1 = max([preterm.stress() for preterm in preterms1 if not np.isnan(preterm.stress())]) - min1
+            min1 = float(min(
+                [preterm.stress() for preterm in preterms1 if not np.isnan(preterm.stress())]))
+            max1 = max([preterm.stress() for preterm in preterms1 if not np.isnan(
+                preterm.stress())]) - min1
             preterms2a = list(tree2a.preterminals())
-            min2a = float(min([preterm.stress() for preterm in preterms2a if not np.isnan(preterm.stress())]))
-            max2a = max([preterm.stress() for preterm in preterms2a if not np.isnan(preterm.stress())]) - min2a
+            min2a = float(min(
+                [preterm.stress() for preterm in preterms2a if not np.isnan(preterm.stress())]))
+            max2a = max([preterm.stress() for preterm in preterms2a if not np.isnan(
+                preterm.stress())]) - min2a
             preterms2b = list(tree2b.preterminals())
-            min2b = float(min([preterm.stress() for preterm in preterms2b if not np.isnan(preterm.stress())]))
-            max2b = max([preterm.stress() for preterm in preterms2b if not np.isnan(preterm.stress())]) - min2b
+            min2b = float(min(
+                [preterm.stress() for preterm in preterms2b if not np.isnan(preterm.stress())]))
+            max2b = max([preterm.stress() for preterm in preterms2b if not np.isnan(
+                preterm.stress())]) - min2b
             preterms_raw = list(t.preterminals())
-            minmean = float(min([np.mean([preterm1.stress(), preterm2a.stress(), preterm2b.stress()]) for preterm1, preterm2a, preterm2b in zip(preterms1, preterms2a, preterms2b) if not np.isnan(preterm1.stress())]))
-            maxmean = max([np.mean([preterm1.stress(), preterm2a.stress(), preterm2b.stress()]) for preterm1, preterm2a, preterm2b in zip(preterms1, preterms2a, preterms2b) if not np.isnan(preterm1.stress())]) - minmean
+            minmean = float(min([np.mean([preterm1.stress(), preterm2a.stress(), preterm2b.stress()]) for preterm1,
+                            preterm2a, preterm2b in zip(preterms1, preterms2a, preterms2b) if not np.isnan(preterm1.stress())]))
+            maxmean = max([np.mean([preterm1.stress(), preterm2a.stress(), preterm2b.stress()]) for preterm1, preterm2a,
+                          preterm2b in zip(preterms1, preterms2a, preterms2b) if not np.isnan(preterm1.stress())]) - minmean
             sent = ' '.join([preterm[0] for preterm in preterms_raw])
             sentlen = len(preterms_raw)
             for preterm1, preterm2a, preterm2b, preterm_raw in zip(preterms1, preterms2a, preterms2b, preterms_raw):
                 j += 1
                 data['widx'].append(j)
-                data['norm_widx'].append(float(j) / sentlen if sentlen else np.nan)
+                data['norm_widx'].append(
+                    float(j) / sentlen if sentlen else np.nan)
                 data['word'].append(preterm1[0])
                 if preterm_raw._lstress == 0:
                     data['lexstress'].append('yes')
@@ -729,81 +763,89 @@ class MetricalTreeParser:
                     data['m1'].append(-(preterm1.stress()-1))
                     data['m2a'].append(-(preterm2a.stress()-1))
                     data['m2b'].append(-(preterm2b.stress()-1))
-                    data['mean'].append(-(np.mean([preterm1.stress(), preterm2a.stress(), preterm2b.stress()])-1))
+                    data['mean'].append(-(np.mean([preterm1.stress(),
+                                        preterm2a.stress(), preterm2b.stress()])-1))
                 else:
                     data['m1'].append(preterm1.stress())
                     data['m2a'].append(preterm2a.stress())
                     data['m2b'].append(preterm2b.stress())
-                    data['mean'].append(np.mean([preterm1.stress(), preterm2a.stress(), preterm2b.stress()]))
-                data['norm_m1'].append((preterm1.stress()-min1)/max1 if max1 else np.nan)
-                data['norm_m2a'].append((preterm2a.stress()-min2a)/max2a if max2a else np.nan)
-                data['norm_m2b'].append((preterm2b.stress()-min2b)/max2b if max2b else np.nan)
-                data['norm_mean'].append((np.mean([preterm1.stress(), preterm2a.stress(), preterm2b.stress()])-minmean)/maxmean if maxmean else np.nan)
+                    data['mean'].append(
+                        np.mean([preterm1.stress(), preterm2a.stress(), preterm2b.stress()]))
+                data['norm_m1'].append(
+                    (preterm1.stress()-min1)/max1 if max1 else np.nan)
+                data['norm_m2a'].append(
+                    (preterm2a.stress()-min2a)/max2a if max2a else np.nan)
+                data['norm_m2b'].append(
+                    (preterm2b.stress()-min2b)/max2b if max2b else np.nan)
+                data['norm_mean'].append((np.mean([preterm1.stress(), preterm2a.stress(
+                ), preterm2b.stress()])-minmean)/maxmean if maxmean else np.nan)
                 data['sidx'].append(i)
                 data['sent'].append(sent)
                 data['ambig_words'].append(ambig1)
                 data['ambig_monosyll'].append(ambig2)
-            data['contour'].extend([' '.join(str(x) for x in data['mean'][-(j):])]*j)
+            data['contour'].extend([' '.join(str(x)
+                                   for x in data['mean'][-(j):])]*j)
 
         if format_pandas:
             for k, v in data.items():
                 data[k] = pd.Series(v)
-            df=pd.DataFrame(data, columns=['widx', 'norm_widx', 'word', 'seg', 'lexstress',
-                                               'nseg', 'nsyll', 'nstress',
-                                               'pos', 'dep',
-                                               'm1', 'm2a', 'm2b', 'mean',
-                                               'norm_m1', 'norm_m2a', 'norm_m2b', 'norm_mean',
-                                               'sidx', 'sent', 'ambig_words', 'ambig_monosyll',
-                                               'contour'])
+            df = pd.DataFrame(data, columns=['widx', 'norm_widx', 'word', 'seg', 'lexstress',
+                                             'nseg', 'nsyll', 'nstress',
+                                             'pos', 'dep',
+                                             'm1', 'm2a', 'm2b', 'mean',
+                                             'norm_m1', 'norm_m2a', 'norm_m2b', 'norm_mean',
+                                             'sidx', 'sent', 'ambig_words', 'ambig_monosyll',
+                                             'contour'])
             return df
 
-        keys=list(data.keys())
-        old=[]
-        num_rows=len(data[keys[0]])
+        keys = list(data.keys())
+        old = []
+        num_rows = len(data[keys[0]])
         for i_row in range(num_rows):
-            dx={}
+            dx = {}
             for k in keys:
-                dx[k]=data[k][i_row]
-            old+=[dx]
+                dx[k] = data[k][i_row]
+            old += [dx]
 
         return old
 
-    #=====================================================================
+    # =====================================================================
     # Parse a list of tokens into phrasal Metrical Trees
     def stats_parse_sents(self, sentences, arto=False, verbose=True):
         """"""
 
         return self.get_stats(self.lex_parse_sents(sentences, verbose), arto=arto)
 
-    #=====================================================================
+    # =====================================================================
     # Parse a string into phrasal Metrical Trees
     def stats_raw_parse(self, sentence, arto=False, verbose=True):
         """"""
 
         return self.get_stats(self.lex_raw_parse(sentence, verbose), arto=arto)
 
-    #=====================================================================
+    # =====================================================================
     # Parse a string into phrasal Metrical Trees
     def stats_raw_parse_sents(self, sentences, arto=False, verbose=True):
         """"""
 
         return self.get_stats(self.lex_raw_parse_sents(sentences, verbose), arto=arto)
 
-    #=====================================================================
+    # =====================================================================
     # Parse a list of tagged tokens into phrasal Metrical Trees
     def stats_tagged_parse(self, sentence, arto=False, verbose=True):
         """"""
 
         return self.get_stats(self.lex_tagged_parse(sentence, verbose), arto=arto)
 
-    #=====================================================================
+    # =====================================================================
     # Parse a list of tagged tokens into phrasal Metrical Trees
     def stats_tagged_parse_sents(self, sentences, arto=False, verbose=True):
         """"""
 
         return self.get_stats(self.lex_tagged_parse_sents(sentence, verbose), arto=arto)
 
-#***********************************************************************
+
+# ***********************************************************************
 # Test the module
 if __name__ == '__main__':
     """"""

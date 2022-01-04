@@ -2,80 +2,78 @@ from entity import being
 from entity import entity
 from tools import *
 
+
 class Line(entity):
-	def __init__(self):
-		self.parent=False
-		self.children=[]
-		self.feats={}
-		self.featpaths={}
-		self.finished = False
+    def __init__(self):
+        self.parent = False
+        self.children = []
+        self.feats = {}
+        self.featpaths = {}
+        self.finished = False
 
-		self.__parses={}
-		self.__bestparse={}
-		self.__boundParses={}
+        self.__parses = {}
+        self.__bestparse = {}
+        self.__boundParses = {}
 
-	def parse(self,meter=None,init=None):
-		#print '>> LINE PARSING',meter,init
-		#if not meter:
-		#	from Meter import Meter,genDefault
-		#	meter = genDefault()
+    def parse(self, meter=None, init=None):
+        # print '>> LINE PARSING',meter,init
+        # if not meter:
+        #	from Meter import Meter,genDefault
+        #	meter = genDefault()
+        """
+        words=self.ents(cls='Word',flattenList=False)
+        #print words
+        numSyll=0
+        if not words: return None
+        for word in words:
+                if type(word)==type([]):
+                        for wrd in word:
+                                if wrd.isBroken():
+                                        #print wrd
+                                        return None
+                        numSyll+=word[0].getNumSyll()
+                else:
+                        if word.isBroken():
+                                return None
+                        numSyll+=word.getNumSyll()
 
-		"""
-		words=self.ents(cls='Word',flattenList=False)
-		#print words
-		numSyll=0
-		if not words: return None
-		for word in words:
-			if type(word)==type([]):
-				for wrd in word:
-					if wrd.isBroken():
-						#print wrd
-						return None
-				numSyll+=word[0].getNumSyll()
-			else:
-				if word.isBroken():
-					return None
-				numSyll+=word.getNumSyll()
+        ## PARSE
+        self.__parses[meter.id],self.__boundParses[meter.id]=meter.parse(words,numSyll)
+        ####
+        """
+        wordtoks = self.wordtokens(include_punct=False)
+        # print words
+        numSyll = 0
+        if not wordtoks:
+            return None
+        for wordtok in wordtoks:
+            wordtok_words = wordtok.children
+            if not wordtok_words or True in [word.isBroken() for word in wordtok_words]:
+                return None
+            numSyll += wordtok_words[0].getNumSyll()
 
-		## PARSE
-		self.__parses[meter.id],self.__boundParses[meter.id]=meter.parse(words,numSyll)
-		####
-		"""
-		wordtoks=self.wordtokens(include_punct=False)
-		#print words
-		numSyll=0
-		if not wordtoks: return None
-		for wordtok in wordtoks:
-			wordtok_words = wordtok.children
-			if not wordtok_words or True in [word.isBroken() for word in wordtok_words]:
-				return None
-			numSyll+=wordtok_words[0].getNumSyll()
+        # PARSE
+        self.__parses[meter.id], self.__boundParses[meter.id] = meter.parse(
+            wordtoks, numSyll)
+        ####
 
-		## PARSE
-		self.__parses[meter.id],self.__boundParses[meter.id]=meter.parse(wordtoks,numSyll)
-		####
+        self.__bestparse[meter.id] = None
+        try:
+            self.__bestparse[meter.id] = self.__parses[meter.id][0]
+        except (KeyError, IndexError) as e:
+            try:
+                self.__bestparse[meter.id] = self.__boundParses[meter.id][0]
+            except (KeyError, IndexError) as e:
+                self.__bestparse[meter.id] = None
 
+        # Re-sort words within wordtoken
+        bp = self.__bestparse[meter.id]
+        if bp:
+            bp.set_wordtokens_to_best_word_options()
 
-		self.__bestparse[meter.id]=None
-		try:
-			self.__bestparse[meter.id]=self.__parses[meter.id][0]
-		except (KeyError,IndexError) as e:
-			try:
-				self.__bestparse[meter.id]=self.__boundParses[meter.id][0]
-			except (KeyError,IndexError) as e:
-				self.__bestparse[meter.id]=None
+        #if init: self.store_stats(meter,init)
 
-
-		## Re-sort words within wordtoken
-		bp = self.__bestparse[meter.id]
-		if bp: bp.set_wordtokens_to_best_word_options()
-
-
-
-		#if init: self.store_stats(meter,init)
-
-
-	"""def store_stats(self,meter,init):
+    """def store_stats(self,meter,init):
 		textname=init.getName()
 		if not textname: textname=str(self).replace(" ","_")
 
@@ -127,165 +125,159 @@ class Line(entity):
 			pass
 	"""
 
+    def scansion(self, meter=None, conscious=False):
+        bp = self.bestParse(meter)
+        config = being.config
+        # if not bp: return
+        lowestScore = ''
+        str_ot = ''
+        count = ''
+        meterstr = ''
+        if bp:
+            meterstr = bp.str_meter()
+            str_ot = bp.str_ot()
+            lowestScore = bp.score()
+            count = bp.totalCount
+        from tools import makeminlength
+        # print(makeminlength(str(bp),60))
+        data = [makeminlength(str(self), config['linelen']), makeminlength(str(
+            bp) if bp else '', config['linelen']), meterstr, len(self.allParses(meter)), count, lowestScore, str_ot]
+        data_unicode = [str(x) for x in data]
+        self.om("\t".join(data_unicode), conscious=conscious)
 
-	def scansion(self,meter=None,conscious=False):
-		bp=self.bestParse(meter)
-		config=being.config
-		#if not bp: return
-		lowestScore=''
-		str_ot=''
-		count=''
-		meterstr=''
-		if bp:
-			meterstr=bp.str_meter()
-			str_ot=bp.str_ot()
-			lowestScore=bp.score()
-			count=bp.totalCount
-		from tools import makeminlength
-		#print(makeminlength(str(bp),60))
-		data = [makeminlength(str(self),config['linelen']), makeminlength(str(bp) if bp else '', config['linelen']),meterstr,len(self.allParses(meter)),count,lowestScore,str_ot]
-		data_unicode = [str(x) for x in data]
-		self.om("\t".join( data_unicode ),conscious=conscious)
+    def allParses(self, meter=None, one_per_meter=True):
+        if not meter:
+            itms = list(self.__parses.items())
+            if not len(itms):
+                return
+            for mtr, parses in itms:
+                return parses
 
+        try:
+            parses = self.__parses[meter.id]
+            if one_per_meter:
+                toreturn = []
+                sofar = set()
+                for _p in parses:
+                    _pm = _p.str_meter()
+                    if not _pm in sofar:
+                        sofar |= {_pm}
+                        if _p.isBounded and _p.boundedBy.str_meter() == _pm:
+                            pass
+                        else:
+                            toreturn += [_p]
+                parses = toreturn
+            return parses
+        except KeyError:
+            return []
 
-	def allParses(self,meter=None,one_per_meter=True):
-		if not meter:
-			itms=list(self.__parses.items())
-			if not len(itms): return
-			for mtr,parses in itms:
-				return parses
+    def boundParses(self, meter=None):
+        if not meter:
+            itms = sorted(self.__boundParses.items())
+            if not len(itms):
+                return []
+            for mtr, parses in itms:
+                return parses
 
-		try:
-			parses=self.__parses[meter.id]
-			if one_per_meter:
-				toreturn=[]
-				sofar=set()
-				for _p in parses:
-					_pm=_p.str_meter()
-					if not _pm in sofar:
-						sofar|={_pm}
-						if _p.isBounded and _p.boundedBy.str_meter() == _pm:
-							pass
-						else:
-							toreturn+=[_p]
-				parses=toreturn
-			return parses
-		except KeyError:
-			return []
+        try:
+            return self.__boundParses[meter.id]
+        except KeyError:
+            return []
 
-	def boundParses(self,meter=None):
-		if not meter:
-			itms=sorted(self.__boundParses.items())
-			if not len(itms): return []
-			for mtr,parses in itms:
-				return parses
+    def bestParse(self, meter=None):
+        if not meter:
+            itms = list(self.__bestparse.items())
+            if not len(itms):
+                return
+            for mtr, parses in itms:
+                return parses
 
-		try:
-			return self.__boundParses[meter.id]
-		except KeyError:
-			return []
+        try:
+            return self.__bestparse[meter.id]
+        except KeyError:
+            return
 
-	def bestParse(self,meter=None):
-		if not meter:
-			itms=list(self.__bestparse.items())
-			if not len(itms): return
-			for mtr,parses in itms:
-				return parses
+    def finish(self):
+        if not hasattr(self, 'finished') or not self.finished:
+            """print "finishing... " + str(self)
+            for word in self.words():
+                    print word, word.origin
+            print"""
 
-		try:
-			return self.__bestparse[meter.id]
-		except KeyError:
-			return
+            self.finished = True
+            if not hasattr(self, 'broken'):
+                self.broken = False
 
+            # if no words
+            if len(self.children) == 0:
+                self.broken = True
 
-	def finish(self):
-		if not hasattr(self,'finished') or not self.finished:
-			"""print "finishing... " + str(self)
-			for word in self.words():
-				print word, word.origin
-			print"""
+            if not self.broken:
+                # if word broken, self broken
+                for words in self.words(flattenList=False):
+                    assert type(words) == list
+                    for word in words:
+                        if word.isBroken():
+                            self.broken = True
 
-			self.finished = True
-			if not hasattr(self,'broken'):
-				self.broken=False
+    def __repr__(self):
+        return self.txt
 
-			## if no words
-			if len(self.children) == 0:
-				self.broken=True
+    @property
+    def txt(self):
+        x = ""
+        for wordtok in self.wordtokens():
+            if not wordtok.is_punct:
+                x += " "+wordtok.token
+            else:
+                x += wordtok.token
+        return x.strip()
 
-			if not self.broken:
-				## if word broken, self broken
-				for words in self.words(flattenList=False):
-					assert type(words)==list
-					for word in words:
-						if word.isBroken():
-							self.broken=True
+    def str_wordbound(self):
+        o = []
+        for word in self.words():
+            e = ""
+            for x in word.children:
+                e += "X"
+            o.append(e)
+        return "#".join(o)
 
+    def str_weight(self, word_sep=""):
+        o = []
+        for word in self.words():
+            o.append("".join(x.str_weight() for x in word.children))
+        return word_sep.join(o)
 
+    def str_stress(self, word_sep=""):
+        o = []
+        for word in self.words():
+            o.append("".join(x.str_stress() for x in word.children))
+        return word_sep.join(o)
 
+    def str_sonority(self, word_sep=""):
+        o = []
+        for word in self.words():
+            o.append("".join(x.str_sonority() for x in word.children))
+        return word_sep.join(o)
 
-	def __repr__(self):
-		return self.txt
-
-	@property
-	def txt(self):
-		x=""
-		for wordtok in self.wordtokens():
-			if not wordtok.is_punct:
-				x+=" "+wordtok.token
-			else:
-				x+=wordtok.token
-		return x.strip()
-
-
-
-	def str_wordbound(self):
-		o=[]
-		for word in self.words():
-			e=""
-			for x in word.children:
-				e+="X"
-			o.append(e)
-		return "#".join(o)
-
-	def str_weight(self,word_sep=""):
-		o=[]
-		for word in self.words():
-			o.append("".join(x.str_weight() for x in word.children))
-		return word_sep.join(o)
-
-	def str_stress(self,word_sep=""):
-		o=[]
-		for word in self.words():
-			o.append("".join(x.str_stress() for x in word.children))
-		return word_sep.join(o)
-
-	def str_sonority(self,word_sep=""):
-		o=[]
-		for word in self.words():
-			o.append("".join(x.str_sonority() for x in word.children))
-		return word_sep.join(o)
-
-
-
-	#def __eq__(self,other):
-	#	if (not hasattr(being,'pointsofcomparison') or not being.pointsofcomparison):
-	#		return object.__eq__(self,other)
-	#	else:
-	#		print
-	#		print
-	#		print
-	#		print self
-	#		print other
-	#
-	#		for poc in being.pointsofcomparison:
-	#			a=getattr(self,poc)()
-	#			b=getattr(other,poc)()
-	#
-	#			print
-	#			print a
-	#			print b
-	#
-	#			if a!=b:
-	#				return False
-	#		return True
+    # def __eq__(self,other):
+    #	if (not hasattr(being,'pointsofcomparison') or not being.pointsofcomparison):
+    #		return object.__eq__(self,other)
+    #	else:
+    #		print
+    #		print
+    #		print
+    #		print self
+    #		print other
+    #
+    #		for poc in being.pointsofcomparison:
+    #			a=getattr(self,poc)()
+    #			b=getattr(other,poc)()
+    #
+    #			print
+    #			print a
+    #			print b
+    #
+    #			if a!=b:
+    #				return False
+    #		return True

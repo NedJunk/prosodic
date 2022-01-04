@@ -4,6 +4,7 @@ from finnish_annotator import mark
 import string
 import sys
 
+
 def remove_punct(word):
 
     start = 0
@@ -19,6 +20,7 @@ def remove_punct(word):
         end -= 1
 
     return word[start:end+1]
+
 
 if len(sys.argv) != 2:
 

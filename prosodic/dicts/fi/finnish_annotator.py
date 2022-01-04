@@ -1,4 +1,5 @@
 # coding=utf-8
+import sys
 from finnish_functions import *
 from finnish_syllables import initialize_presyllabified, make_syllables
 from finnish_weight import make_weights
@@ -15,39 +16,43 @@ INITIAL = 1
 SUFFIX = 2
 COMPOUND = 3
 
-import sys
 
-dirself=""
+dirself = ""
 for path in sys.path:
-	if os.path.sep+"fi" in path:
-		dirself=path
+    if os.path.sep+"fi" in path:
+        dirself = path
 
-user_files = [os.path.join(dirself,'presyllabified.txt'), os.path.join(dirself,'initial.txt'), os.path.join(dirself,'suffix.txt'), os.path.join(dirself,'compound.txt')] # default values, in case user input is ill-formed or unavailable
-config_file = os.path.join(dirself,'config.txt')
+user_files = [os.path.join(dirself, 'presyllabified.txt'), os.path.join(dirself, 'initial.txt'), os.path.join(
+    dirself, 'suffix.txt'), os.path.join(dirself, 'compound.txt')]  # default values, in case user input is ill-formed or unavailable
+config_file = os.path.join(dirself, 'config.txt')
 
 initial_compounds = []
 suffixes = []
 compound_dict = {}
 
 # initialize list l with words from filename, a file with words on individual lines
+
+
 def initialize_list(l, filename):
-    
+
     try:
-        
+
         f = open(filename, 'r')
         entries = f.readlines()
         f.close()
 
         for i in range(len(entries)-1):
-            l += [entries[i][:-1].lower()] # remove final newline character
+            l += [entries[i][:-1].lower()]  # remove final newline character
 
-        l += [entries[-1].lower()] # final line has no newline
-        
+        l += [entries[-1].lower()]  # final line has no newline
+
     except IOError:
-        
+
         print("Error: File not found.")
 
 # initialize dict with entries, where key is entry from entries in lowercase without separator, and value is list of words in entry split at separator
+
+
 def initialize_dict(dict, entries, separator):
 
     for entry in entries:
@@ -56,30 +61,34 @@ def initialize_dict(dict, entries, separator):
         hyphen_free = entry.replace(separator, '')
         words = entry.split(separator)
         dict[hyphen_free] = words
-        
+
 # initialize a dictionary from a file
 # the first line of the file is the separator character
 # the remaining lines are words with separations marked by the separator character
+
+
 def initialize_dict_from_file(dict, filename):
-    
+
     try:
-        
+
         f = open(filename, 'r')
         entries = f.readlines()
         f.close()
 
         for i in range(len(entries)-1):
-            entries[i] = entries[i][:-1] # remove final newline character
-            
+            entries[i] = entries[i][:-1]  # remove final newline character
+
         separator = entries[0]
         entries = entries[1:]
         initialize_dict(dict, entries, separator)
-        
+
     except IOError:
-        
+
         print("Error: File not found.")
-    
+
 # initialize configuration
+
+
 def initialize_config():
 
     try:
@@ -92,7 +101,7 @@ def initialize_config():
 
             return
 
-        for i in range(len(user_files)-1): # last word does not end in newline
+        for i in range(len(user_files)-1):  # last word does not end in newline
 
             entries[i] = entries[i][:-1]
 
@@ -105,16 +114,19 @@ def initialize_config():
     except IOError:
 
         print("Error: Config file not found.")
-    
+
     initialize_presyllabified(user_files[PRESYLL])
     initialize_list(initial_compounds, user_files[INITIAL])
     initialize_list(suffixes, user_files[SUFFIX])
     initialize_dict_from_file(compound_dict, user_files[COMPOUND])
 
+
 initialize_config()
 
 # a class representing an annotation
 # the constructor assumes that the word contains no compounds
+
+
 class Annotation:
     def __init__(self, word):
         self.word = word
@@ -134,7 +146,7 @@ class Annotation:
         if len(annotation.stresses[0]) > 0:
 
             total_stresses = []
-            
+
             for i in range(len(self.stresses)):
 
                 for j in range(len(annotation.stresses)):
@@ -149,6 +161,8 @@ class Annotation:
 
 # if the final word in the list of words starts with a word in the list of compound-initial words, split the word and apply the function again
 # (i.e., split off all initial words in initial_compounds)
+
+
 def split_initial_compounds(words):
 
     for word in initial_compounds:
@@ -160,6 +174,8 @@ def split_initial_compounds(words):
     return words
 
 # if the final word in the list of words ends with a suffix in suffixes, split the word at the suffix
+
+
 def split_suffix(words):
 
     for suffix in suffixes:
@@ -173,6 +189,8 @@ def split_suffix(words):
     return words
 
 # split each word in words apart if it appears in the dictionary of compounds
+
+
 def split_preannotated_compounds(words):
 
     result = []
@@ -181,18 +199,21 @@ def split_preannotated_compounds(words):
 
         if words[i].lower() in compound_dict:
 
-           result += compound_dict[words[i].lower()]
+            result += compound_dict[words[i].lower()]
 
         else:
 
             result += [words[i]]
 
     return result
-            
-    
-ORTHOGRAPHIC_COMPOUND_MARKER = '-' # the symbol in Finnish orthography marking compound boundaries
+
+
+# the symbol in Finnish orthography marking compound boundaries
+ORTHOGRAPHIC_COMPOUND_MARKER = '-'
 
 # make an annotation for a word
+
+
 def make_annotation(word):
     words = [word]
     words = split_initial_compounds(words)
@@ -207,30 +228,35 @@ def make_annotation(word):
     return annotations[0]
 
 # print a representation of an annotation for a word
+
+
 def print_annotation(word_annotation):
     print(annotation_string(word_annotation))
     print(pattern_string(word_annotation))
     print()
 
 # annotate and print the annotation for a word
+
+
 def mark(word):
 
     print_annotation(make_annotation(word))
 
+
 def annotation_string(word_annotation):
-    
+
     result = ''
 
     for i in range(len(word_annotation.stresses)):
 
         result += SYLLABLE_SEPARATOR
-    
+
         for j in range(len(word_annotation.syllables)):
 
             # mark stresses
             if word_annotation.stresses[i][j] == Stress.primary:
                 result += '´'
-                
+
             elif word_annotation.stresses[i][j] == Stress.secondary:
                 result += '`'
 
@@ -238,27 +264,31 @@ def annotation_string(word_annotation):
             result += word_annotation.syllables[j] + SYLLABLE_SEPARATOR
 
         result += '\n'
-        
-    return result[:-1] # remove final newline
+
+    return result[:-1]  # remove final newline
 
 # return a string representing the weight pattern
 # e.g. the weights for ".´ny.ky.`en.nus.te." are represented 'LLHHL'
+
+
 def syll_pattern(weights):
-    
+
     result = ''
-    
+
     for w in weights:
 
         result += Weight.dict[w]
-            
+
     return result
 
 # return a string representing the stress pattern
 # e.g. the stresses for ".´ny.ky.`en.nus.te." are represented 'PUSUU'
+
+
 def stress_pattern(stresses):
-    
+
     result = ''
-    
+
     for i in range(len(stresses)):
 
         for s in stresses[i]:
@@ -266,11 +296,13 @@ def stress_pattern(stresses):
             result += Stress.dict[s]
 
         result += ', '
-            
-    return result[:-2] # remove last comma and space
+
+    return result[:-2]  # remove last comma and space
 
 # return a string representing the sonority pattern
 # e.g. the sonority for taloiden is represented 'AAI'
+
+
 def sonority_pattern(sonorities):
 
     result = ''
@@ -282,5 +314,7 @@ def sonority_pattern(sonorities):
     return result
 
 # print a representation of the weights and stresses
+
+
 def pattern_string(word_annotation):
     return 'Weight: ' + syll_pattern(word_annotation.weights) + '   Stress: ' + stress_pattern(word_annotation.stresses) + '   Sonority: ' + sonority_pattern(word_annotation.sonorities)
